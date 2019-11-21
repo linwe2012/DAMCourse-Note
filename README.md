@@ -596,7 +596,130 @@ $$
 
 
 
+## 图像索引方法
 
+​        在提取特征之后，就会得到大规模的特征数据库。对于如此巨大的数据规模，传统的顺序检索方法会受到很大的限制，因此需要合适的索引机制。由于图像特征一般都为高维特征，所以它与一般的索引结构的区别在于图像特征检索可能会面临着“维度灾难”，因此很多研究者提出了很多解决办法：
+
+### **多维索引方法（MM）：**
+
+​		多维索引方法：通过划分数据空间，根据划分对数据进行聚类并利用划分对搜索空间进行剪枝来提高查询效率。最为成功的MM方法是基于树结构的索引方法。这种方法把数据集里的数据点分成不同的簇，然后用某种覆盖对象近似表示每个簇，所有的覆盖对象通过树结构进行组织。检索时，这些覆盖对象能够提供簇内数据点到查询向量距离的下界，并利用这些距离下界对数结构剪枝，使用户在不访问所有簇的情况下得到相似度检索结果。
+
+### 最近邻检索（NN）和近似最近邻方法（ANN）：
+
+​		最近邻检索就是根据数据的相似性，从数据库中寻找与目标数据最相似的项目。后者中的“近似”是在对图像的特征向量进行最近邻搜索的意义上的，即在特征向量的最近邻检索结果中引入错误率ε，然后进行近似。
+降维方法：
+​		降维方法是解决维度灾难的最直接的途径，其主要思想为利用降维后的向量计算出来的近似距离代替精确距离，具体过程为：利用单值分解、离散小波变换、离散余弦变换等方法对数据集降维，然后利用传统多维索引方法对降维后的数据建立索引。
+
+### 多重空间填充曲线：
+
+​		基于多重空间填充曲线的索引方法利用空间填充曲线降低需要访问的向量数。它将R^d的数据点映射到实数轴上，从而提供一种将d维数据向量进行排序的方式。检索时，查询向量q也先通过空间填充曲线映射到实数轴上，然后通过二分查找或者搜索树即可找到q的近邻点。但该方法会导致在R^d上临近的点在实数轴上相互远离，从而单个映射会给检索结果带来较大的错误率。虽然可以引进多个映射来扩大每次在实数轴上的查询范围，但这些都会严重降低最近邻检索的效率。
+
+### 基于过滤的方法：
+
+​		基于过滤的方法即通过过滤掉一些向量使得检索过程中只需要访问较少部分的其余向量即可。向量近似文件（VA-File）及其一系列变体都属于这种方法，以VA+-File方法为例，该方法首先使用KLT变换去除各维之间的相关性，然后根据变换后的各维能量进行不均匀的位数分配；GC树和LPC文件方法则改进了近似向量的表示形式，以提高近似向量的过滤能力。
+
+### 聚类与降维相结合的高维索引机制：
+
+​		为了提高大规模数据的索引性能，考虑多种索引方法结合是发展的必然趋势。例如聚类与降维相结合的索引方法：该方法以聚类作为前期过滤处理，再分别对每个类中的数据降维之后建立有效的索引。
+
+![image-20191121222627122](img\image-20191121222627122.png)
+
+## **基于内容的图像检索系统应用：**
+
+​		典型的CBIR系统，是允许用户输入一张图片，以查找具有相同或相似内容的其他图片。而传统的图像检索是基于文本的，即通过图片的名称、文字信息和索引关系来实现查询功能。
+
+​		当前市场上已经有很多基于内容的图像检索系统投入使用，与此同时还有很多研究项目也在着重研究基于内容的图像检索，且部分已经开源。
+
+​		**表1: 商业图像搜索引擎：**
+
+| 名称                           | 描述                                                         | 外部图像查询 | 元数据查询 | 索引大小 (估计值,  Millions ) | 组织             | 协议 (Open/Closed) |
+| ------------------------------ | ------------------------------------------------------------ | ------------ | ---------- | ----------------------------- | ---------------- | :----------------- |
+| Elastic Vision                 | Smart image searcher with content-based  clustering in a visual network. | No           | No         |                               | Private Company  | Closed             |
+| Google Image Search            | Google's CBIR system, note: does not work  on all images     | Yes          | Yes        |                               | Public Company   | Closed             |
+| Baidu Image Search             | Baidu's CBIR system                                          | Yes          | Yes        | 1000M                         | Public Company   | Closed             |
+| ID My Pill                     | Automatic prescription pill  identification (CBIR)           | Yes          | No         |                               | Private Company  | Open (via API)     |
+| Imense Image Search Portal     | CBIR search engine, by Imense.                               | No           | Yes        | 3M                            | Private Company  | Closed             |
+| Imprezzeo Image Search         | CBIR search engine, by Imprezzeo.                            | No           | Yes        |                               | Private Company  | Closed             |
+| Visual Image Search            | CBIR search engine, by pixolution                            | Yes          | No         | 10M                           | Private Company  | Closed             |
+| Incogna Image Search           | CBIR search engine, by Incogna Inc.                          | No           | Yes        | 100M                          | Private Company  | Closed             |
+| Like.com                       | Shopping & fashion based CBIR engine                         | No           | Yes        | 1M                            | Private Company  | Closed             |
+| Chic Engine                    | Visual fashion search engine (CBIR)                          | Yes          | No         |                               | Private Company  | Closed             |
+| MiPai similarity search engine | Online similarity search engine                              | Yes          | Yes        | 100M                          | Individual       | Closed             |
+| Piximilar                      | Demo engine, developed by Idee Inc.                          | No           | No         | 3M                            | Private Company1 | Closed             |
+| Empora                         | Product comparison & shopping using  CBIR for product images. Previously known as Pixsta | No           | Yes        | 0.5M                          | Private Company  | Closed             |
+| Shopachu                       | Shopping & fashion CBIR engine, by  Incogna Inc.             | No           | Yes        | 1M                            | Private Company  | Closed             |
+| TinEye                         | CBIR site for finding variations of web  images, by Idee Inc. | Yes          | No         | 1800M                         | Private Company  | Closed             |
+| Tiltomo                        | CBIR system using Flickr photos                              | No           | Yes        |                               | Private Company  | Closed             |
+| eBay Image Search              | Image Search for eBay Fashion                                | No           | Yes        | 20M                           | Public Company   | Closed             |
+| Visual Recognition Factory     | Visual Recognition Factory                                   | Yes          | Yes        |                               | Private Company  | Closed             |
+| IMMENSELAB                     | CBIR search engine by KBKGROUP.                              | Yes          | No         | 10M                           | Private Company  | Closed             |
+| Macroglossa Visual Search      | CBIR visual search engine                                    | Yes          | No         |                               | Private Company  | Closed             |
+
+**表2: 研究项目（部分开源）**
+
+| 名称                   | 外部图像查询 | 元数据查询 | 索引大小 (估计值,  Millions of Images) | 组织               | 协议 (Open/Closed) |
+| ---------------------- | ------------ | ---------- | -------------------------------------- | ------------------ | ------------------ |
+| akiwi                  | Yes          | Yes        | 15M                                    | University         | Closed             |
+| ALIPR                  | Yes          | Yes        | University                             | Closed             |                    |
+| Anaktisi               | Yes          | No         | 0.225M                                 | University         | Open               |
+| BRISC                  | Yes          | No         | University                             | GPL                |                    |
+| Caliph & Emir          | Yes          | No         | Desktop-based                          | University         | GPL                |
+| FIRE                   | No           | No         | University                             | Open               |                    |
+| GNU Image Finding Tool | Yes          | No         | Desktop-based                          | GNU                | GPL                |
+| ISSBP                  | Yes          | Yes        | free-beta limited to 4k images         | Private Company    | Closed             |
+| img(Rummager)          | Yes          | No         | Desktop-based                          | Individual         | Closed             |
+| ImgSeek                | Yes          | No         | Individual                             | GPL                |                    |
+| IKONA                  | Yes          | Yes        | University                             | Closed             |                    |
+| IOSB                   | Yes          | No         | Desktop-based                          | Research Institute | Closed             |
+| LIRE                   | Yes          | Yes        | University                             | GPL                |                    |
+| Lucignolo              | Yes          | Yes        | 106M                                   | Research Institute | Closed             |
+| MIFile                 | No           | No         | 106M                                   | Research Institute | Open               |
+| MUVIS                  | Yes          | No         | Desktop-based                          | University         | Closed             |
+| PIRIA                  | Yes          | Yes        | 130M                                   | University         | Closed             |
+| PicsLikeThat           | No           | No         | 12M                                    | University         | Closed             |
+| Pixcavator             | Yes          | No         | Desktop-based                          | Private company    | Closed             |
+| Pixolu                 | Yes          | No         | Private Company / University           | Closed             |                    |
+| RETIN                  | No           | No         | University                             | Closed             |                    |
+| Retrievr               | No           | No         | University                             | Closed             |                    |
+| SIMBA                  | Yes          | No         | 0.002M                                 | University         | Closed             |
+| TagProp                | No           | Yes        | Institute                              | Closed             |                    |
+| VIRaL                  | Yes          | Yes        | 2.221M                                 | University         | Closed             |
+| Windsurf               | Yes          | No         | University                             | Closed             |                    |
+| PIBE                   | Yes          | No         | University                             | Closed             |                    |
+| SHIATSU                | Yes          | Yes        | University                             | Closed             |                    |
+| akiwi                  | Yes          | Yes        | 15M                                    | University         | Closed             |
+
+
+
+#### 部分网站实例展示
+
+**Baidu Image Search：**
+
+​    	百度识图是百度近期新推出的一种图像检索技术，其能实现用户通过上传图片或输入图片的url地址，从而搜索到互联网上与这张图片相似的其他图片资源，同时也能找到这张图片相关的信息。
+
+输入图片：
+
+<img src="D:\大学\大三上\数字媒体资源管理\课堂笔记\DAMCourse-Note\img\image-20191121223518261.png" alt="image-20191121223518261" style="zoom:150%;" />
+
+得到搜索结果：
+
+![image-20191121223830396](img\image-20191121223830396.png)
+
+网站还会给出相似图片搜索结果：
+
+![image-20191121224531953](C:\Users\lenovo\AppData\Roaming\Typora\typora-user-images\image-20191121224531953.png)
+
+**TinEye**
+
+​		TinEye.com 是一个非常强大的图片搜索引擎，其搜索的准确率高，且完全免费。该网站的使用方法和刚才百度识图的方法类似，即上传一张本地图片或者给一个图片的url地址，点击搜索后该网站即会返回搜索结果。
+
+​    	用户可以在该网站上传一张照片，或者直接输入某一个图片的URL地址，然后点击搜索，TinEye就会将该图片的原图搜索出来，虽然结果不多，但是相当精确，足以应对日常的使用。
+
+
+
+​		同时，基于内容的图像检索技术在各大购物网站也有很广泛的应用，用户可以上传一张商品图片，然后网站会返回与该图片匹配度较高的搜索结果，具体流程如下图。
+
+![image-20191121224809958](img\image-20191121224809958.png)
 
 ## 小结
 
